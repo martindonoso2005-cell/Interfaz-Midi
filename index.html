@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CTRL-02 · Martin Donoso</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --orange:#f26419; --orange-dk:#d95311; --cream:#f7f1e8; --ink:#1b1410;
+  --indigo:#2b1f8f; --bg-base:#06090f; --panel-dark:#111827; --accent-green:#10b981;
+  --text-muted:#9ca3af;
+  --display:'Archivo Black','Arial Black',Impact,sans-serif;
+  --body:'Archivo','Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);background:var(--ink);color:var(--cream);min-height:100vh}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--cream);outline-offset:3px}
+
+/* ---------- Barra superior ---------- */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  background:var(--orange);color:var(--ink);padding:12px 28px;border-bottom:4px solid var(--orange-dk)}
+.brand{font-family:var(--display);font-size:1.4rem;text-decoration:none;letter-spacing:.02em}
+.topbar nav{display:flex;gap:6px}
+.topbar nav a{text-decoration:none;font-weight:700;padding:8px 14px;border-radius:999px;border:2px solid transparent}
+.topbar nav a:hover{border-color:var(--ink)}
+.topbar nav a[aria-current="page"]{background:var(--ink);color:var(--cream)}
+.autor{font-weight:600;font-size:.9rem}
+
+.view{display:none}
+.view.active{display:block}
+
+/* ---------- Inicio ---------- */
+.home{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:calc(100vh - 66px)}
+.home-photo{background:var(--orange);display:flex;align-items:center;justify-content:center;padding:40px}
+.home-photo img{width:min(100%,460px);border-radius:22px;border:5px solid var(--orange-dk);
+  box-shadow:0 24px 50px rgba(0,0,0,.4);transform:rotate(-2deg)}
+.home-copy{background:var(--cream);color:var(--ink);padding:48px clamp(24px,5vw,72px);
+  display:flex;flex-direction:column;justify-content:center;gap:28px}
+.home-copy h1{font-family:var(--display);font-size:clamp(3.4rem,9vw,6.5rem);line-height:.9;letter-spacing:-.02em}
+.home-copy .lead{font-size:1.2rem;max-width:34ch;line-height:1.45}
+.opciones{display:flex;flex-direction:column;gap:16px}
+.opcion{display:flex;align-items:center;gap:20px;text-decoration:none;background:#fff;
+  border:3px solid var(--ink);border-radius:20px;padding:16px 20px;transition:transform .12s,box-shadow .12s;
+  box-shadow:0 6px 0 var(--ink)}
+.opcion:hover{transform:translateY(2px);box-shadow:0 4px 0 var(--ink)}
+.opcion:active{transform:translateY(6px);box-shadow:0 0 0 var(--ink)}
+.opcion .cap{flex:none;width:68px;height:68px;border-radius:50%;display:grid;place-items:center;
+  font-family:var(--display);font-size:1.5rem;border:4px solid rgba(0,0,0,.25)}
+.opcion.b .cap{background:radial-gradient(circle at 30% 30%,#5b4be0,var(--indigo));color:#fff}
+.opcion.a .cap{background:radial-gradient(circle at 30% 30%,#fff,#d8d2c4);color:var(--ink)}
+.opcion strong{display:block;font-size:1.25rem}
+.opcion span.d{font-size:.95rem;color:#5c5249}
+
+/* ---------- Probar producto (dashboard) ---------- */
+#v-probar{background:var(--bg-base);padding:1.5rem}
+.dash{display:flex;flex-direction:column;align-items:center;gap:20px}
+.dash-header,.info-panel{width:100%;max-width:960px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+  background:var(--panel-dark);padding:1rem 1.5rem;border-radius:12px;border:1px solid #1f2937}
+.dash-header h2{font-size:1.15rem;font-weight:700}
+.dash-header h2 small{font-size:.8rem;color:var(--text-muted);font-weight:400}
+#btnConectar{background:var(--accent-green);color:#000;border:none;padding:.6rem 1.2rem;font-weight:700;
+  border-radius:8px;cursor:pointer;transition:transform .1s;font-family:var(--body)}
+#btnConectar:hover{transform:scale(1.05)}
+.main-grid{display:grid;grid-template-columns:440px 1fr;gap:24px;width:100%;max-width:960px;align-items:center}
+.deck-container{background:var(--orange);width:440px;height:440px;border-radius:22px;padding:28px;position:relative;
+  box-shadow:0 20px 40px rgba(0,0,0,.6),inset 0 2px 6px rgba(255,255,255,.3);
+  display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center;border:4px solid var(--orange-dk)}
+.deck-brand{position:absolute;bottom:16px;left:28px;font-family:monospace;font-weight:800;font-size:.8rem;color:rgba(0,0,0,.5);letter-spacing:.1em}
+.deck-left-col{display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%;padding:5px 0}
+.control-group{display:flex;flex-direction:column;align-items:center;gap:4px}
+.deck-label{font-family:monospace;font-size:.65rem;font-weight:700;color:rgba(0,0,0,.75);text-transform:uppercase}
+.btn-virtual{width:68px;height:68px;border-radius:50%;border:3px solid rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:.9rem;box-shadow:0 6px 12px rgba(0,0,0,.3),inset 0 3px 6px rgba(255,255,255,.4);transition:all .08s ease}
+.btn-virtual.white{background:radial-gradient(circle at 30% 30%,#fff,#cbd5e1);color:#1f2937}
+.btn-virtual.blue{background:radial-gradient(circle at 30% 30%,#3b82f6,#1d4ed8);color:#fff}
+.btn-virtual.pressed{transform:scale(.92);box-shadow:0 2px 4px rgba(0,0,0,.4),inset 0 2px 4px rgba(0,0,0,.6);filter:brightness(.9)}
+.knob-virtual{width:68px;height:68px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff,#e2e8f0);border:3px solid #64748b;
+  position:relative;box-shadow:0 6px 14px rgba(0,0,0,.3),inset 0 2px 4px rgba(0,0,0,.2);transition:transform .05s linear}
+.knob-marker{width:3px;height:16px;background:#ef4444;position:absolute;top:4px;left:50%;transform:translateX(-50%);border-radius:2px}
+.deck-right-col{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;position:relative}
+.fader-track-virtual{width:12px;height:340px;background:#0d1117;border-radius:6px;position:relative;box-shadow:inset 0 3px 6px rgba(0,0,0,.8)}
+.fader-thumb-virtual{width:44px;height:32px;background:linear-gradient(135deg,#374151,#1f2937);border:2px solid #6b7280;border-radius:6px;
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);box-shadow:0 4px 8px rgba(0,0,0,.5);transition:top .05s linear}
+.fader-thumb-virtual::after{content:'';position:absolute;top:50%;left:4px;right:4px;height:2px;background:var(--accent-green);transform:translateY(-50%)}
+.visualizer-card{background:var(--panel-dark);border-radius:22px;padding:24px;border:1px solid #1f2937;display:flex;flex-direction:column;gap:15px;height:440px;justify-content:space-between}
+.visualizer-header{display:flex;justify-content:space-between;align-items:center}
+.visualizer-header h3{font-size:.95rem;font-weight:600}
+.wave-badge{font-family:monospace;background:#1f2937;color:var(--accent-green);padding:4px 10px;border-radius:6px;font-size:.75rem;font-weight:700}
+#canvasOsciloscopio{width:100%;height:250px;background:#030712;border-radius:12px;border:1px solid #1f2937}
+.synth-info{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center;font-family:monospace;font-size:.8rem;background:#030712;padding:10px;border-radius:8px}
+.synth-info div span{display:block;color:var(--text-muted);font-size:.65rem;margin-bottom:2px}
+.synth-info div strong{color:var(--accent-green);font-size:.95rem}
+#toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-30px);background:var(--accent-green);color:#000;
+  padding:8px 20px;border-radius:500px;font-weight:700;font-size:.85rem;opacity:0;pointer-events:none;transition:all .2s ease;z-index:1000}
+#toast.visible{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ---------- Documentación ---------- */
+#v-doc{background:var(--cream);color:var(--ink)}
+.doc{max-width:1040px;margin:0 auto;padding:48px 24px 72px;display:flex;flex-direction:column;gap:56px}
+.doc h2{font-family:var(--display);font-size:clamp(1.8rem,4vw,2.6rem);line-height:1;margin-bottom:8px}
+.doc .intro{font-size:1.05rem;max-width:62ch;line-height:1.5;color:#4a4036}
+.doc-hero h1{font-family:var(--display);font-size:clamp(3rem,8vw,5.5rem);line-height:.9;margin-bottom:12px}
+.doc-hero p{font-size:1.2rem;max-width:44ch;line-height:1.45}
+.video-row{display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:center}
+.video-frame{width:min(315px,80vw);aspect-ratio:9/16;border:4px solid var(--ink);border-radius:20px;overflow:hidden;box-shadow:0 8px 0 var(--ink);background:#000}
+.video-frame iframe{width:100%;height:100%;border:0}
+.specs{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.tabla{background:#fff;border:3px solid var(--ink);border-radius:18px;padding:18px 22px}
+.tabla h3{font-size:1.1rem;margin-bottom:8px}
+.tabla div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #e6ddd0}
+.tabla div:last-child{border-bottom:0}
+.tabla b{text-align:right}
+.figure{background:#fff;border:3px solid var(--ink);border-radius:18px;padding:12px}
+.figure img{width:100%;display:block;border-radius:10px;cursor:zoom-in}
+.figure figcaption{padding:10px 6px 2px;font-size:.92rem;color:#4a4036}
+.galeria{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:20px;margin-top:20px}
+.galeria .figure img{aspect-ratio:4/5;object-fit:cover}
+.checks{list-style:none;display:grid;gap:10px;margin-top:14px}
+.checks li{background:#fff;border:2px solid var(--ink);border-radius:12px;padding:12px 16px 12px 46px;position:relative}
+.checks li::before{content:'';position:absolute;left:16px;top:50%;width:16px;height:16px;margin-top:-8px;border-radius:50%;background:var(--orange);border:2px solid var(--ink)}
+footer{background:var(--ink);color:var(--cream);padding:24px 28px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:.9rem}
+
+#lightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;z-index:2000;padding:20px;cursor:zoom-out}
+#lightbox.on{display:flex}
+#lightbox img{max-width:100%;max-height:100%;border-radius:10px}
+
+@media (max-width:900px){
+  .home{grid-template-columns:1fr}
+  .home-photo{padding:28px}
+  .main-grid{grid-template-columns:1fr;justify-items:center}
+  .deck-container{max-width:100%}
+  .visualizer-card{width:100%}
+  .video-row,.specs{grid-template-columns:1fr}
+  .video-frame{margin:0 auto}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<div id="toast">Acción</div>
+
+<header class="topbar">
+  <a class="brand" href="#inicio">CTRL-02</a>
+  <nav aria-label="Principal">
+    <a href="#inicio" data-nav="inicio">Inicio</a>
+    <a href="#probar" data-nav="probar">Probar producto</a>
+    <a href="#documentacion" data-nav="documentacion">Documentación</a>
+  </nav>
+  <span class="autor">Martin Donoso</span>
+</header>
+
+<!-- ============ INICIO ============ -->
+<main id="v-inicio" class="view">
+  <div class="home">
+    <div class="home-photo">
+      <img src="ENS_6.jpeg" alt="Controlador CTRL-02: caja naranja con perilla de tono, botón azul B, botón blanco A y fader de nivel">
+    </div>
+    <div class="home-copy">
+      <h1>CTRL-02</h1>
+      <p class="lead">Controlador físico USB que toca, cambia de onda y modula tono y volumen. Por Martin Donoso.</p>
+      <div class="opciones">
+        <a class="opcion b" href="#probar">
+          <span class="cap">B</span>
+          <span><strong>Probar producto</strong><span class="d">Conecta el controlador y míralo sonar en el dashboard.</span></span>
+        </a>
+        <a class="opcion a" href="#documentacion">
+          <span class="cap">A</span>
+          <span><strong>Documentación</strong><span class="d">Video, esquemático, lámina y fotos del proceso.</span></span>
+        </a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ============ PROBAR PRODUCTO ============ -->
+<main id="v-probar" class="view">
+  <div class="dash">
+    <div class="dash-header">
+      <h2>🎛️ CTRL-02 <small>| Sintetizador y osciloscopio en vivo</small></h2>
+      <button id="btnConectar">🔌 Conectar Arduino</button>
+    </div>
+
+    <div class="main-grid">
+      <div class="deck-container">
+        <span class="deck-brand">CTRL-02</span>
+        <div class="deck-left-col">
+          <div class="control-group">
+            <div class="knob-virtual" id="knobVirtual"><div class="knob-marker"></div></div>
+            <span class="deck-label">Tono (Frecuencia)</span>
+          </div>
+          <div class="control-group">
+            <div class="btn-virtual blue" id="btnVirtualB">B</div>
+            <span class="deck-label">Botón B (Tipo Onda)</span>
+          </div>
+          <div class="control-group">
+            <div class="btn-virtual white" id="btnVirtualA">A</div>
+            <span class="deck-label">Botón A (Play/Mute)</span>
+          </div>
+        </div>
+        <div class="deck-right-col">
+          <div class="fader-track-virtual"><div class="fader-thumb-virtual" id="faderThumb"></div></div>
+          <span class="deck-label" style="margin-top:10px;">Nivel (Volumen)</span>
+        </div>
+      </div>
+
+      <div class="visualizer-card">
+        <div class="visualizer-header">
+          <h3>Osciloscopio de audio en vivo</h3>
+          <span class="wave-badge" id="badgeOnda">Onda: Senoidal</span>
+        </div>
+        <canvas id="canvasOsciloscopio"></canvas>
+        <div class="synth-info">
+          <div><span>ESTADO</span><strong id="infoEstado" style="color:#ef4444;">MUTED / OFF</strong></div>
+          <div><span>FRECUENCIA (TONO)</span><strong id="infoFreq">440 Hz</strong></div>
+          <div><span>NIVEL (VOLUMEN)</span><strong id="infoVol">50%</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel">
+      <div style="font-size:.85rem;color:var(--text-muted);" id="consolaMini">Esperando conexión serial con el Arduino… (usa Chrome o Edge)</div>
+      <div style="font-size:.8rem;font-family:monospace;color:var(--accent-green);">Web Audio API Active</div>
+    </div>
+  </div>
+</main>
+
+<!-- ============ DOCUMENTACIÓN ============ -->
+<main id="v-doc" class="view">
+  <div class="doc">
+
+    <section class="doc-hero">
+      <h1>Documentación</h1>
+      <p>CTRL-02, controlador físico para la Entrega 1 de Diseño de Interfaces (Unidad 2, Interfaces Físicas, UAI). Diseñado y construido por Martin Donoso.</p>
+    </section>
+
+    <section>
+      <h2>Video de funcionamiento</h2>
+      <div class="video-row">
+        <div class="video-frame">
+          <iframe src="https://www.youtube.com/embed/uGYHcVdGSDg" title="CTRL-02 funcionando" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+        </div>
+        <p class="intro">El controlador conectado por USB al computador, moviendo el dashboard en tiempo real: el botón A activa y silencia el sonido, el botón B cambia el tipo de onda, la perilla ajusta la frecuencia y el fader el volumen.
+          <br><br><a href="https://youtube.com/shorts/uGYHcVdGSDg" target="_blank" rel="noopener"><b>Ver en YouTube</b></a></p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Lámina de producto</h2>
+      <p class="intro" style="margin-bottom:16px">Resumen del hardware: funciones, especificaciones y mapa de pines.</p>
+      <figure class="figure">
+        <img src="lamina_CTRL-02.png" alt="Lámina de producto CTRL-02 con fotos, especificaciones, mapa de pines y esquemático">
+      </figure>
+    </section>
+
+    <section>
+      <h2>Ficha técnica</h2>
+      <div class="specs" style="margin-top:16px">
+        <div class="tabla">
+          <h3>Especificaciones</h3>
+          <div><span>Entradas</span><b>2 botones + 2 potenciómetros</b></div>
+          <div><span>Microcontrolador</span><b>Arduino + shield</b></div>
+          <div><span>Conexión</span><b>USB serial, 9600 baud</b></div>
+          <div><span>Resolución</span><b>10 bits (0-1023)</b></div>
+          <div><span>Carcasa</span><b>Impresa en 3D</b></div>
+          <div><span>Interfaz</span><b>Dashboard web</b></div>
+        </div>
+        <div class="tabla">
+          <h3>Mapa de pines</h3>
+          <div><span>Botón B (azul): tipo de onda</span><b>D2</b></div>
+          <div><span>Botón A (blanco): play / mute</span><b>D3</b></div>
+          <div><span>Fader: nivel</span><b>A0</b></div>
+          <div><span>Perilla: tono</span><b>A1</b></div>
+          <div><span>Alimentación</span><b>5 V / GND común</b></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Diagrama esquemático</h2>
+      <p class="intro" style="margin-bottom:16px">Conexiones del shield: los botones usan resistencia pull-up interna del Arduino y comparten un GND común; ambos potenciómetros comparten 5 V.</p>
+      <figure class="figure">
+        <img src="Cableado.png" alt="Esquemático de conexiones del shield: D2, D3, A0, A1, 5V y GND común">
+      </figure>
+    </section>
+
+    <section>
+      <h2>Proceso de manufactura y ensamble</h2>
+      <p class="intro">Carcasa impresa en 3D, soldadura de los contactos de los botones, cableado hacia el shield y ensamble final. Toca una foto para ampliarla.</p>
+      <div class="galeria">
+        <figure class="figure"><img src="ENS_1.jpeg" alt="Interior de la carcasa con botones y soldaduras en los contactos" loading="lazy"><figcaption>Soldadura de los contactos de los botones A y B dentro de la carcasa impresa en 3D.</figcaption></figure>
+        <figure class="figure"><img src="ENS_2.jpeg" alt="Botones soldados y potenciómetro con cable rojo" loading="lazy"><figcaption>Cableado de los botones y primer potenciómetro conectado.</figcaption></figure>
+        <figure class="figure"><img src="ENS_3.jpeg" alt="Cables saliendo de botones, fader y perilla hacia el shield" loading="lazy"><figcaption>Controles montados y cables listos para conectarse al shield.</figcaption></figure>
+        <figure class="figure"><img src="ENS_4.jpeg" alt="Shield soldado montado sobre el Arduino con headers" loading="lazy"><figcaption>Shield sobre el Arduino: la conexión es por headers, así se monta y desmonta sin desoldar.</figcaption></figure>
+        <figure class="figure"><img src="ENS_5.jpeg" alt="Vista frontal del controlador terminado" loading="lazy"><figcaption>Vista frontal terminada, con grabado de etiquetas y escala del fader.</figcaption></figure>
+        <figure class="figure"><img src="ENS_6.jpeg" alt="Controlador terminado en vista isométrica" loading="lazy"><figcaption>Producto final con el cable USB conectado.</figcaption></figure>
+      </div>
+    </section>
+
+    <section>
+      <h2>Cumplimiento de la pauta</h2>
+      <ul class="checks">
+        <li>Botones (2) y potenciómetros (1 deslizante y 1 circular) como entradas.</li>
+        <li>Shield en placa preperforada con headers para montar y desmontar el Arduino, sin protoboard.</li>
+        <li>Componentes y cableado contenidos dentro de la carcasa.</li>
+        <li>Comunicación serial USB con el computador y dashboard web en tiempo real.</li>
+        <li>Documentación: video, esquemático, lámina y fotos del proceso.</li>
+      </ul>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <span>Entrega 1 · Unidad 2: Interfaces Físicas · Diseño de Interfaces, UAI</span>
+  <span>CTRL-02 · Martin Donoso</span>
+</footer>
+
+<div id="lightbox" role="dialog" aria-label="Imagen ampliada"><img alt=""></div>
+
+<script>
+/* ================= Navegación por hash ================= */
+const vistas = {inicio:'v-inicio', probar:'v-probar', documentacion:'v-doc'};
+function irA(){
+  const h = (location.hash || '#inicio').slice(1);
+  const key = vistas[h] ? h : 'inicio';
+  Object.entries(vistas).forEach(([k,id]) => document.getElementById(id).classList.toggle('active', k===key));
+  document.querySelectorAll('[data-nav]').forEach(a => {
+    if (a.dataset.nav===key) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current');
+  });
+  if (key==='probar') ajustarCanvas();
+  window.scrollTo(0,0);
+}
+window.addEventListener('hashchange', irA);
+
+/* Ampliar fotos */
+const lb = document.getElementById('lightbox');
+document.querySelectorAll('.figure img').forEach(img => img.addEventListener('click', () => {
+  lb.querySelector('img').src = img.src; lb.querySelector('img').alt = img.alt; lb.classList.add('on');
+}));
+lb.addEventListener('click', () => lb.classList.remove('on'));
+document.addEventListener('keydown', e => { if (e.key==='Escape') lb.classList.remove('on'); });
+
+/* ================= Sintetizador CTRL-02 ================= */
+let audioCtx = null, osc = null, gainNode = null, analyser = null;
+let sonando = false, frecuencia = 440, volumen = 0.5;
+const tiposOnda = ['sine','square','sawtooth','triangle'];
+let indiceOnda = 0;
+
+function iniciarAudio(){
+  if (audioCtx) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  gainNode = audioCtx.createGain();
+  gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 2048;
+  gainNode.connect(analyser);
+  analyser.connect(audioCtx.destination);
+}
+
+function dispararSonido(){
+  if (!audioCtx) iniciarAudio();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  if (sonando){
+    gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.03);
+    sonando = false;
+    document.getElementById('infoEstado').textContent = "MUTED / OFF";
+    document.getElementById('infoEstado').style.color = "#ef4444";
+    mostrarToast("⏸ Audio Silenciado (Botón A)");
+  } else {
+    if (osc){ try { osc.stop(); } catch(e){} }
+    osc = audioCtx.createOscillator();
+    osc.type = tiposOnda[indiceOnda];
+    osc.frequency.setValueAtTime(frecuencia, audioCtx.currentTime);
+    osc.connect(gainNode);
+    osc.start();
+    gainNode.gain.setTargetAtTime(volumen, audioCtx.currentTime, 0.03);
+    sonando = true;
+    document.getElementById('infoEstado').textContent = "ACTIVO / LIVE";
+    document.getElementById('infoEstado').style.color = "var(--accent-green)";
+    mostrarToast(`▶ Sonido Activo (${tiposOnda[indiceOnda].toUpperCase()})`);
+  }
+}
+
+function cambiarTipoOnda(){
+  indiceOnda = (indiceOnda + 1) % tiposOnda.length;
+  const nuevoTipo = tiposOnda[indiceOnda];
+  if (osc) osc.type = nuevoTipo;
+  document.getElementById('badgeOnda').textContent = `Onda: ${nuevoTipo.toUpperCase()}`;
+  mostrarToast(`🔀 Onda cambiada a: ${nuevoTipo.toUpperCase()}`);
+}
+
+const canvas = document.getElementById('canvasOsciloscopio');
+const ctx = canvas.getContext('2d');
+function ajustarCanvas(){
+  const w = canvas.parentElement.clientWidth - 48;
+  if (w > 0) canvas.width = w;
+  canvas.height = 250;
+}
+window.addEventListener('resize', ajustarCanvas);
+
+function dibujarOsciloscopio(){
+  requestAnimationFrame(dibujarOsciloscopio);
+  ctx.fillStyle = '#030712';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  if (!analyser){
+    ctx.lineWidth = 2; ctx.strokeStyle = '#1f2937';
+    ctx.beginPath(); ctx.moveTo(0, canvas.height/2); ctx.lineTo(canvas.width, canvas.height/2); ctx.stroke();
+    return;
+  }
+  const bufferLength = analyser.frequencyBinCount;
+  const dataArray = new Uint8Array(bufferLength);
+  analyser.getByteTimeDomainData(dataArray);
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = sonando ? '#10b981' : '#374151';
+  ctx.beginPath();
+  const sliceWidth = canvas.width / bufferLength;
+  let x = 0;
+  for (let i = 0; i < bufferLength; i++){
+    const y = (dataArray[i] / 128.0) * (canvas.height / 2);
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    x += sliceWidth;
+  }
+  ctx.lineTo(canvas.width, canvas.height / 2);
+  ctx.stroke();
+}
+dibujarOsciloscopio();
+
+function mostrarToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('visible');
+  setTimeout(() => t.classList.remove('visible'), 1800);
+}
+
+/* ================= Web Serial ================= */
+let port, reader;
+
+function mapear(raw, inMin, inMax, outMin, outMax){
+  const val = Math.min(inMax, Math.max(inMin, raw));
+  return outMin + ((val - inMin) / (inMax - inMin)) * (outMax - outMin);
+}
+
+document.getElementById('btnConectar').addEventListener('click', async () => {
+  if (!("serial" in navigator)){
+    alert("Tu navegador no soporta Web Serial (usa Chrome o Edge en un computador).");
+    return;
+  }
+  try {
+    port = await navigator.serial.requestPort();
+    await port.open({ baudRate: 9600 });
+    document.getElementById('btnConectar').textContent = "✅ CTRL-02 Conectado";
+    document.getElementById('btnConectar').style.backgroundColor = "#34d399";
+    iniciarAudio();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    leerSerial();
+  } catch (err) {
+    console.error(err);
+    mostrarToast("❌ Error al conectar (cierra el monitor serial)");
+  }
+});
+
+async function leerSerial(){
+  const decoder = new TextDecoderStream();
+  port.readable.pipeTo(decoder.writable);
+  reader = decoder.readable.getReader();
+  let buffer = "";
+  try {
+    while (true){
+      const { value, done } = await reader.read();
+      if (done) break;
+      if (value){
+        buffer += value;
+        const lineas = buffer.split('\n');
+        buffer = lineas.pop();
+        for (let linea of lineas){
+          linea = linea.trim();
+          if (linea.length > 0){
+            document.getElementById('consolaMini').textContent = `Serial: ${linea}`;
+            procesarSensores(linea);
+          }
+        }
+      }
+    }
+  } catch (err) { console.error(err); }
+}
+
+let btnAnteriorA = "SUELTO", btnAnteriorB = "SUELTO";
+const faderThumb = document.getElementById('faderThumb');
+const knobVirtual = document.getElementById('knobVirtual');
+const btnVirtualA = document.getElementById('btnVirtualA');
+const btnVirtualB = document.getElementById('btnVirtualB');
+
+function procesarSensores(linea){
+  const regex = /Circular\s*\(A\d\):\s*(\d+)\s*\|\s*Pot\.\s*Deslizante\s*\(A\d\):\s*(\d+)\s*\|\s*Boton\s*1\s*\(Pin\s*2\):\s*(\w+)\s*\|\s*Boton\s*2\s*\(Pin\s*3\):\s*(\w+)/i;
+  const match = linea.match(regex);
+  if (!match) return;
+
+  const rawCircular = parseInt(match[1], 10);
+  const rawDeslizante = parseInt(match[2], 10);
+  const estadoBtnB_Azul = match[3].toUpperCase();
+  const estadoBtnA_Blanco = match[4].toUpperCase();
+
+  // Fader vertical (nivel / volumen)
+  const porcFader = mapear(rawDeslizante, 15, 1005, 0, 100);
+  volumen = porcFader / 100;
+  if (sonando && gainNode) gainNode.gain.setTargetAtTime(volumen, audioCtx.currentTime, 0.02);
+  document.getElementById('infoVol').textContent = `${Math.round(porcFader)}%`;
+  faderThumb.style.top = `${mapear(porcFader, 0, 100, 310, 20)}px`;
+
+  // Perilla circular (tono / frecuencia)
+  const porcKnob = mapear(rawCircular, 15, 1005, 0, 100);
+  frecuencia = mapear(porcKnob, 0, 100, 100, 1200);
+  if (osc) osc.frequency.setTargetAtTime(frecuencia, audioCtx.currentTime, 0.02);
+  document.getElementById('infoFreq').textContent = `${Math.round(frecuencia)} Hz`;
+  knobVirtual.style.transform = `rotate(${(porcKnob / 100) * 270 - 135}deg)`;
+
+  // Botón A (blanco): play / mute
+  if (estadoBtnA_Blanco === "PRESIONADO"){
+    btnVirtualA.classList.add('pressed');
+    if (btnAnteriorA === "SUELTO") dispararSonido();
+  } else btnVirtualA.classList.remove('pressed');
+  btnAnteriorA = estadoBtnA_Blanco;
+
+  // Botón B (azul): tipo de onda
+  if (estadoBtnB_Azul === "PRESIONADO"){
+    btnVirtualB.classList.add('pressed');
+    if (btnAnteriorB === "SUELTO") cambiarTipoOnda();
+  } else btnVirtualB.classList.remove('pressed');
+  btnAnteriorB = estadoBtnB_Azul;
+}
+
+irA();
+</script>
+</body>
+</html>
